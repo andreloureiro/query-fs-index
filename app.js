@@ -44,42 +44,44 @@ function initialize(pages) {
     console.log(err);
     throw err;
   });
+
+}
+
+function getPage(page) {
+  return new Promise(function(resolve, reject) {
+    var pageUrl = URL + page;
+    request(pageUrl, function(err, response, body) {
+      if (err) reject(err);
+      var playerData = JSON.parse(body);
+      resolve(playerData);
+    });
+  });
 }
 
 function getPages(pages) {
-  var promiseArray = [];
+  var promises = [];
 
   for (var i = 0; i < pages; i++) {
-    var promise = new Promise(function(resolve, reject) {
-        var pageUrl = URL + i;
-        request(pageUrl, function(err, response, body) {
-          if (err) reject(err);
-          var playerData = JSON.parse(body);
-          resolve(playerData);
-        });
-      })
-    }
-
-    _debug(promise());
-    promiseArray.push(promise());
+    promises[i] = getPage(i); 
   }
 
-  return Promise.all(promiseArray);
+  _debug(promises);
+  return Promise.all(promises);
 }
 
 function getByPosition(players, position) {
   return players.filter(function(player) {
-    if (player == undefined) return;
+    if (player === undefined) return;
     return player.PosicaoJogador == position;
   });
 }
 
 function showPlayers(players, position, quantity) {
-  var players = getByPosition(players, position);
+  var playersPosition = getByPosition(players, position);
   console.log(':: ' + position);
   for (var i = 0; i < quantity; i++) {
-    if (players[i] != undefined) log(players[i]);
-  };
+    if (playersPosition[i] !== undefined) log(playersPosition[i]);
+  }
 }
 
 initialize(5);
